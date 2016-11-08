@@ -1,0 +1,4 @@
+#!/bin/sh
+
+cd cde-package/cde-root/home/vagrant/l2
+./timing.native.cde "$@"

@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>λ2: Installation and use</title>
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <script src="//code.jquery.com/jquery-1.11.2.min.js" type="text/javascript"></script>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css" type="text/css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js" type="text/javascript"></script>
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="page-header">
+        <h1>λ<sup>2</sup> <small>Installation and use</small></h1>
+      </div>
+
+      Our PLDI paper is
+      available <a href="/pliny-web/lambda2/l2-pldi2015.pdf">here</a>.
+
+      <h2>Getting λ<sup>2</sup></h2>
+      <p>
+
+        λ<sup>2</sup> is available as
+        a <a href="/pliny-web/lambda2/l2vm">CDE package</a> for Linux
+        systems. Additionally, λ<sup>2</sup> can be installed from
+        source on Unix-like operating systems.
+      </p>
+
+      <h2>Running λ<sup>2</sup></h2>
+      <p>
+        Simply running <code>l2</code> will start our benchmark
+        suite. Every problem that we discuss in the last section of
+        our paper will be run by this suite. To reproduce the running
+        times with deduction turned off, pass the <code>-i -x</code>
+        flags. To reproduce the running times with type safe search
+        turned off, pass the <code>-u</code> flag. Benchmark problems
+        can be run individually with <code>l2 NAME</code>. For more
+        information on the command line parameters to <code>l2</code>,
+        pass the <code>-h</code> flag.
+      </p>
+
+      <p>
+        <code>l2</code> can also read specifications from standard
+        input. There are a few example specifications in
+        the <code>specs/</code> directory. For example, to run the
+        provided specification for list reverse, <code>cat
+        specs/reverse.l2 | ./l2 -s</code>.
+      </p>
+
+      <h3>Building from source</h3>
+      <p>
+        If the compiled binary doesn't work, it is possible to build
+        λ<sup>2</sup> from source. The source code is included in the
+        binary package, and instructions are below.
+      </p>
+
+      <h4>Linux</h4>
+      <ol>
+        <li><a href="https://ocaml.org/docs/install.html#LinuxDistributions">Install
+            OCaml</a>
+            and <a href="https://opam.ocaml.org/doc/Install.html">
+            OPAM</a>.
+        </li>
+        <li>Install <a href="http://gallium.inria.fr/~fpottier/menhir/">Menhir</a>
+          and <a href="https://janestreet.github.io">Core</a> with <code>opam install core menhir</code>.
+
+        <li>Extract the source package and run <code>./build.sh
+        timing.native</code> to build the benchmark suite.</li>
+      </ol>
+
+      <h4>OS X</h4>
+      <ol>
+        <li>
+          I recommend installing OCaml and OPAM
+          through <a href="http://brew.sh">Homebrew</a>. Run <code>brew
+          install ocaml opam</code> to install.
+        </li>
+        <li>Install <a href="http://gallium.inria.fr/~fpottier/menhir/">Menhir</a>
+          and <a href="https://janestreet.github.io">Core</a> with <code>opam install core menhir</code>.
+
+        <li>Extract the source package and run <code>./build.sh
+        timing.native</code> to build the benchmark suite.</li>
+      </ol>
+
+      <p>The <code>l2</code> program in the root of the package is a
+      wrapper script around the CDE
+      packaged <code>timing.native</code>, so the usage instructions
+      are the same for both.
+
+      <h2>Writing specifications</h2>
+      <p>
+        A λ<sup>2</sup> specification consists of two parts. First, an
+        optional set of extra primitive operators. Second, a set of
+        input-output examples. The two sections are separated by a
+        blank line.
+      </p>
+
+      <h3>Input-Output examples</h3>
+      <p>
+        To specify a function, provide a set of examples that are
+        representative of the function's behavior. Make sure to
+        capture any relevant special cases. For example, a
+        specification of a function that computes absolute value
+        should have examples on both positive and negative inputs.
+      </p>
+      <p>
+        λ<sup>2</sup> supports integers, booleans, lists and n-ary
+        trees. We have a set of predefined primitive operators over
+        these types and a set of combinators that capture common
+        recursion schemes.
+      </p>
+
+      <p>
+        The syntax of an input-output example is:
+      </p>
+
+      <pre>
+<b>example</b> ::= ( <b>name</b> <b>value</b>+ ) -> <b>value</b>
+
+  <b>value</b> ::= <b>integer</b>
+          | <b>boolean</b>
+          | <b>list</b>
+          | <b>tree</b>
+
+   <b>list</b> ::= [ <b>value</b>* ]
+
+   <b>tree</b> ::= { <b>value</b> <b>tree</b>* }
+
+<b>integer</b> ::= [0-9]+
+<b>boolean</b> ::= #t | #f
+   <b>name</b> ::= [a-zA-Z]+</pre>
+
+      <p>The following is a specification for list reverse:</p>
+      <pre>
+(reverse []) -> []
+(reverse [1]) -> [1]
+(reverse [1 2]) -> [2 1]
+(reverse [1 2 3]) -> [3 2 1]</pre>
+
+      <p>
+        There are more example specifications in
+        the <code>specs/</code> directory of the package.
+      </p>
+
+      <h3>Providing extra primitives</h3>
+      <p>
+        Some of the problems that we discussed in the paper extend the
+        set of primitive operators with problem specific functions. If
+        it is known that a particular function is needed, providing it
+        as a primitive can significantly speed up synthesis.
+      </p>
+      <p>
+        These extra primitives are written in the λ<sup>2</sup>
+        intermediate language, which is a dialect of the lambda
+        calculus.
+      </p>
+
+      <p>The syntax of the intermediate language is:</p>
+      <pre>
+   <b>expr</b> ::= <b>name</b>
+          | ( let <b>name</b> <b>expr</b> <b>expr</b> )
+          | ( lambda ( <b>name</b>* ) <b>expr</b> )
+          | ( <b>expr</b> <b>expr</b>* )
+          | <b>list</b>
+          | <b>tree</b>
+          | <b>integer</b>
+          | <b>boolean</b>
+
+   <b>list</b> ::= [ <b>value</b>* ]
+
+   <b>tree</b> ::= { <b>value</b> <b>tree</b>* }
+
+<b>integer</b> ::= [0-9]+
+<b>boolean</b> ::= #t | #f
+   <b>name</b> ::= [a-zA-Z]+</pre>
+
+      <p>We support the following built-in operators:</p>
+      <pre>
+(+) :: Int -> Int -> Int
+(-) :: Int -> Int -> Int
+(/) :: Int -> Int -> Int
+(*) :: Int -> Int -> Int
+(%) :: Int -> Int -> Int
+(=) :: a -> a -> Bool
+(!=) :: a -> a -> Bool
+(<) :: Int -> Int -> Bool
+(>) :: Int -> Int -> Bool
+(<=) :: Int -> Int -> Bool
+(>=) :: Int -> Int -> Bool
+(&) :: Bool -> Bool -> Bool
+(|) :: Bool -> Bool -> Bool
+(~) :: Bool -> Bool
+if :: Bool -> a -> a -> a
+cons :: a -> [a] -> [a]
+car :: [a] -> a
+cdr :: [a] -> [a]
+tree :: a -> [Tree a] -> Tree a
+children :: Tree a -> [Tree a]
+value :: Tree a -> a</pre>
+
+      <p>As well as the following combinators:</p>
+      <pre>
+map :: [a] -> (a -> b) -> [b]
+filter :: [a] -> (a -> Bool) -> [a]
+foldr :: [a] -> (b -> a -> b) -> b -> b
+foldl :: [a] -> (b -> a -> b) -> b -> b
+mapt :: Tree a -> (a -> b) -> Tree b
+foldt :: Tree a -> ([b] -> a -> b) -> b -> b</pre>
+
+      <p>Each extra primitive should be on its own line preceded by
+      its name. The following is a specification for a program that
+      flattens a tree into a list that uses an extra primitive:
+      </p>
+      <pre>
+join (lambda (a) (foldl a (lambda (c b) (foldr c (lambda (e d) (cons d e)) b)) []))
+
+(flatten {}) -> []
+(flatten {1}) -> [1]
+(flatten {1 {2} {3}}) -> [1 2 3]</pre>
+    </div>
+  </body>
+</html>

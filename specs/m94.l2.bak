@@ -1,0 +1,12 @@
+max (lambda (a) (foldl a (lambda (c b) (if (< c b) b c)) 0))
+avg (lambda (l) (float(List.fold_left ( + ) 0 l) /. float(List.length l)))
+
+(m94 []) -> []
+(m94 [[1 21000] [2 23400] [3 26800] [4 91000]]) -> [58900]
+
+
+avg (lambda (a) (foldl a (lambda (c b) (+ c b)) 0))
+
+(m94 []) -> []
+(m94 [[1 21000] [2 23400] [3 26800] [4 91000]]) -> [138800]
+(m94 [[1 6] [2 2] [3 3] [4 5]]) -> [14]
